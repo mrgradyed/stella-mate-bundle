@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>contactEmailRot13</key>
+	<string></string>
+	<key>description</key>
+	<string></string>
+	<key>name</key>
+	<string>StellaMateBundle</string>
+	<key>uuid</key>
+	<string>43E375C7-A93A-4CF3-AAA9-A4B2A0267B2A</string>
+</dict>
+</plist>
