@@ -8,17 +8,17 @@ This bundle contains some actions I wrote to ease my work in [TextMate 2](https:
 ## Actions
 * #### CSSLintOnSave
 When editing a CSS file, pressing CMD+S causes the document to be analysed by [CSSLint](http://csslint.net/) and saved.
-CSSLint output is formatted and printed in a window under the document, clicking on one of the listed problems causes the document to scroll to the related line.
+CSSLint output is converted to HTML and printed in a window under the document, clicking on one of the listed problems causes the document to scroll to the related line.
 
 * #### JSHintOnSave
 When editing a Javascript file, pressing CMD+S causes the document to be analysed by [JSHint](http://jshint.com/) and saved.
-JSHint output is formatted and printed in a window under the document, clicking on one of the listed problems causes the document to scroll to the related line.
+JSHint output is converted to HTML and printed in a window under the document, clicking on one of the listed problems causes the document to scroll to the related line.
 
 ## Requirements
 * CSSLintOnSave requires [npm version of CSSLint](https://github.com/CSSLint/csslint/wiki/Command-line-interface) to be installed.
 * JSHintOnSave requires [npm version of JSHint](http://jshint.com/install/) to be installed.
-* Actions are Python scripts, so Python 2.7 (or 2.6, or 2.5) needs to be available.
-* The path, where csslint and jshint are, needs to be added to the PATH variable in the TextMate 2 preferences.
+* Actions are Python scripts, so Python 2.7 (or 2.6, or 2.5) needs to be available (Python comes pre-installed on Mac OS X).
+* **The path**, where csslint and jshint scripts are, needs to be added to the PATH variable in the TextMate 2 preferences under the '*Variables*' tab (e.g. '*/usr/local/bin*').
 
 ## Installation
 **If TextMate 2 is installed**, just double-click "StellaMateBundle.tmbundle".
