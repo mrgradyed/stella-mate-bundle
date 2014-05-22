@@ -5,7 +5,7 @@
 	<key>beforeRunningCommand</key>
 	<string>saveActiveFile</string>
 	<key>command</key>
-	<string>#!/usr/bin/env python
+	<string>#!/usr/bin/env bash
 
 # The MIT License (MIT)
 
@@ -29,37 +29,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import os
-import re
-import commands
-
-if commands.getstatusoutput('which csslint')[0] == 0:
-    path_to_file = os.environ['TM_FILEPATH']
-    result = commands.getoutput('csslint %s' % (path_to_file))
-
-    messages = []
-    line_numbers = []
-    if result:
-        file_name = os.environ['TM_FILENAME']
-        messages = result.split(file_name)
-        del messages[0:2]
-        for msg in messages:
-            line_number = re.search('\d+', msg.split(':')[1])
-            if line_number:
-                line_numbers.append(int(line_number.group()))
-
-    style = 'a {color: blue; text-decoration: none; padding: 5px;}'
-    print '''&lt;html&gt;&lt;head&gt;&lt;style&gt;%s&lt;/style&gt;&lt;/head&gt;
-        &lt;body&gt;&lt;h3&gt;csslint: %s errors&lt;/h3&gt;&lt;div&gt;''' % (style, len(messages))
-
-    link = '&lt;a href="txmt://open?url=file://%s&amp;line=%d"&gt;%s&lt;/a&gt;&lt;br/&gt;'
-    for line_number, msg in zip(line_numbers, messages):
-        print link % (path_to_file, line_number, msg)
-
-    print '&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;'
-
-else:
-    print 'CSSLint NOT found.'
+python "$TM_BUNDLE_SUPPORT/csslint.py" 
 </string>
 	<key>input</key>
 	<string>none</string>

@@ -5,7 +5,7 @@
 	<key>beforeRunningCommand</key>
 	<string>saveActiveFile</string>
 	<key>command</key>
-	<string>#!/usr/bin/env python
+	<string>#!/usr/bin/env bash
 
 # The MIT License (MIT)
 
@@ -29,39 +29,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import os
-import re
-import commands
-
-if commands.getstatusoutput('which jshint')[0] == 0:
-    path_to_file = os.environ['TM_FILEPATH']
-    result = commands.getoutput('jshint %s' % (path_to_file))
-
-    messages = []
-    line_numbers = []
-    if result:
-        messages = result.replace(path_to_file+': ', '').split('\n')
-        last_msg = messages[-1]
-        del messages[-1]
-        for msg in messages:
-            line_number = re.search('\d+', msg)
-            if line_number:
-                line_numbers.append(int(line_number.group()))
-    else:
-        last_msg = '0 errors'
-
-    style = 'a {color: blue; text-decoration: none; padding: 5px;}'
-    print '''&lt;html&gt;&lt;head&gt;&lt;style&gt;%s&lt;/style&gt;&lt;/head&gt;
-        &lt;body&gt;&lt;h3&gt;jshint: %s&lt;/h3&gt;&lt;div&gt;''' % (style, last_msg)
-
-    link = '&lt;a href="txmt://open?url=file://%s&amp;line=%d"&gt;%s&lt;/a&gt;&lt;br/&gt;'
-    for line_number, msg in zip(line_numbers, messages):
-        print link % (path_to_file, line_number, msg)
-
-    print '&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;'
-
-else:
-    print 'JSHint NOT found.'
+python "$TM_BUNDLE_SUPPORT/jshint.py" 
 </string>
 	<key>input</key>
 	<string>none</string>
