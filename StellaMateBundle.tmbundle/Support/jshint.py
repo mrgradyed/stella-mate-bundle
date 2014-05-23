@@ -11,8 +11,8 @@
 # copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
 
-# The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
+# The above copyright notice and this permission notice shall be included
+# in all copies or substantial portions of the Software.
 
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -26,46 +26,56 @@ import os
 import re
 import commands
 
-if commands.getstatusoutput('which jshint')[0] == 0:
-    path_to_file = os.environ['TM_FILEPATH']
-    result = commands.getoutput('jshint %s' % (path_to_file))
+(jshint_status, jshint_path) = commands.getstatusoutput('which jshint')
 
-    messages = []
-    line_numbers = []
-    if result:
-        messages = result.replace(path_to_file+': ', '').split('\n')
-        last_msg = messages[-1]
-        del messages[-1]
-        for msg in messages:
-            line_number = re.search('\d+', msg)
-            if line_number:
-                line_numbers.append(line_number.group(0))
-    else:
-        last_msg = '0 errors'
-
-    style = '''
-        div.container {
-            border-bottom: 1px solid #a2a3a4; 
-        }
-        div.link { 
-            background: #d2d3d4; 
-            border: 1px solid #a2a3a4; 
-            border-bottom: 0;
-            padding:10px; 
-        } 
-        a {
-            color: blue; 
-            text-decoration: none;
-        }'''
-        
-    print '''<html><head><style>%s</style></head>
-        <body><h3>jshint: %s</h3><div class="container">''' % (style, last_msg)
-
-    link = '<div class="link"><a href="txmt://open?url=file://%s&line=%s">%s</a></div>'
-    for line_number, msg in zip(line_numbers, messages):
-        print link % (path_to_file, line_number, msg)
-
-    print '</div></body></html>'
+if jshint_status != 0:
+    print 'CSSLint NOT found.'
 
 else:
-    print 'JSHint NOT found.'
+    file_path = os.environ['TM_FILEPATH']
+    result = commands.getoutput('%s %s' % (jshint_path, file_path))
+
+    if result:
+        result = result.replace('&', '&amp;').replace('"', '&quot;').replace(
+            "'", '&apos;').replace('>', '&gt;').replace('<', '&lt;')
+
+        messages = result.split(file_path)
+        number_of_errors = [
+            int(s) for s in messages[-1].split() if s.isdigit()][-1]
+        first_message = 'jshint: There are %s problems in %s' % (
+            number_of_errors, file_path)
+
+        style = '''
+            .container {
+                border-bottom: 1px solid lightgray;
+            }
+            .link {
+                background: lavender;
+                border: 1px solid lightgray;
+                border-bottom: 0;
+                padding:20px;
+            }
+            a {
+                color: navy;
+                text-decoration: none;
+            }'''
+
+        header = '''<html><head><style>%s</style></head><body>
+            <h3>%s</h3><div class="container">''' % (style, first_message)
+
+        link = '''<div class="link">
+            <a href="txmt://open?url=file://%s&line=%s">%s</a></div>'''
+
+        footer = '</div></body></html>'
+
+        print header
+
+        for msg in messages:
+            line_start = msg.find('line ')
+            if line_start != -1:
+                msg = msg[line_start:]
+                error_line = re.search('\d+', msg)
+                if error_line:
+                    print link % (file_path, error_line.group(0), msg)
+
+        print footer

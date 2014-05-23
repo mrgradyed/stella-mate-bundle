@@ -26,61 +26,60 @@ import os
 import re
 import commands
 
-if commands.getstatusoutput('which csslint')[0] == 0:
-    path_to_file = os.environ['TM_FILEPATH']
-    result = commands.getoutput('csslint %s' % (path_to_file))
+(csslint_status, csslint_path) = commands.getstatusoutput('which csslint')
 
-    dirty_messages = []
-    messages = []
-    error_lines = []
-    general_warnings = []
-    if result:
-        file_name = os.environ['TM_FILENAME']
-        dirty_messages = result.split(file_name)
-        del dirty_messages[0:2]
-
-        for dmsg in dirty_messages:
-            line_start = dmsg.find('line')
-            if line_start == -1:
-                dmsg = dmsg[dmsg.find('warning'):]
-                general_warnings.append(dmsg)
-            else:
-                messages.append(dmsg[line_start:])
-
-        for msg in messages:
-            error_line = re.search('\d+', msg)
-            if error_line and msg.find('line') != -1:
-                error_lines.append(error_line.group(0))
-
-    style = '''
-        div.container {
-            border-bottom: 1px solid #a2a3a4;
-        }
-        div.link {
-            background: #d2d3d4;
-            border: 1px solid #a2a3a4;
-            border-bottom: 0;
-            padding:10px;
-        }
-        a {
-            color: blue;
-            text-decoration: none;
-        }'''
-
-    print '''<html><head><style>%s</style></head>
-        <body><h3>csslint: %s errors</h3><div class="container">''' % (
-        style, len(messages) + len(general_warnings))
-
-    link = '''<div class="link">
-        <a href="txmt://open?url=file://%s&line=%s">%s</a></div>'''
-
-    for error_line, msg in zip(error_lines, messages):
-        print link % (path_to_file, error_line, msg)
-
-    for gen_warning in general_warnings:
-        print '<div class="link"><span>%s</span></div>' % (gen_warning)
-
-    print '</div></body></html>'
+if csslint_status != 0:
+    print 'CSSLint NOT found.'
 
 else:
-    print 'CSSLint NOT found.'
+    file_path = os.environ['TM_FILEPATH']
+    result = commands.getoutput('%s %s' % (csslint_path, file_path))
+
+    if result:
+        result = result.replace('&', '&amp;').replace('"', '&quot;').replace(
+            "'", '&apos;').replace('>', '&gt;').replace('<', '&lt;')
+
+        file_name = os.environ['TM_FILENAME']
+        messages = result.split(file_name)
+        first_message = '%s%s' % (messages[0], file_name)
+
+        style = '''
+            .container {
+                border-bottom: 1px solid lightgray;
+            }
+            .link {
+                background: lavender;
+                border: 1px solid lightgray;
+                border-bottom: 0;
+                padding:20px;
+            }
+            a {
+                color: navy;
+                text-decoration: none;
+            }'''
+
+        header = '''<html><head><style>%s</style></head><body>
+            <h3>%s</h3><div class="container">''' % (style, first_message)
+
+        link = '''<div class="link">
+            <a href="txmt://open?url=file://%s&line=%s">%s</a></div>'''
+
+        span = '<div class="link"><span>%s</span></div>'
+
+        footer = '</div></body></html>'
+
+        print header
+
+        for msg in messages:
+            line_start = msg.find('line ')
+            if line_start != -1:
+                msg = msg[line_start:]
+                error_line = re.search('\d+', msg)
+                if error_line:
+                    print link % (file_path, error_line.group(0), msg)
+            else:
+                warning_start = msg.find('warning')
+                if warning_start != -1:
+                    print span % (msg[warning_start:])
+
+        print footer
