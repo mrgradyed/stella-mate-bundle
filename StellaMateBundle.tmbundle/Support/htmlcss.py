@@ -28,6 +28,7 @@ style = '''
     }
     .bigtitle {
         font-size: 20px;
+        color: blue;
     }
     .linkmsg, .othermsg {
         background: lavender;

@@ -48,10 +48,11 @@ else:
             "'", '&apos;').replace('>', '&gt;').replace('<', '&lt;')
 
         messages = result.split(file_path)
-        number_of_errors = [
-            int(s) for s in messages[-1].split() if s.isdigit()][-1]
-        first_message = 'jshint: There are %s problems in %s' % (
-            number_of_errors, file_path)
+
+        if messages[0].find('ERROR') != -1:
+            first_message = 'jshint%s' % (messages[0][messages[0].find(':'):])
+        else:
+            first_message = 'jshint: There are problems in %s' % (file_path)
 
         print htmlcss.header % (htmlcss.style, first_message)
 
