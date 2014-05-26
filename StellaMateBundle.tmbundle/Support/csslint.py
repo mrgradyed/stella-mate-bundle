@@ -33,7 +33,8 @@ if csslint_status != 0:
 
 else:
     file_path = os.environ['TM_FILEPATH']
-    result = commands.getoutput('%s %s' % (csslint_path, file_path))
+    result = commands.getoutput(
+        '%s --format=text %s' % (csslint_path, file_path))
 
     if result:
         result = result.replace('&', '&amp;').replace('"', '&quot;').replace(
