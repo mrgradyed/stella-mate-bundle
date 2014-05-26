@@ -25,14 +25,18 @@
 import os
 import re
 import commands
+import htmlcss
 
 (csslint_status, csslint_path) = commands.getstatusoutput('which csslint')
+file_path = os.environ['TM_FILEPATH']
 
 if csslint_status != 0:
-    print 'CSSLint NOT found.'
-
+    print htmlcss.header % (htmlcss.style, 'Error: csslint NOT FOUND.')
+    print htmlcss.footer
+elif os.stat(file_path).st_size == 0:
+    print htmlcss.header % (htmlcss.style, 'Error: FILE IS EMPTY.')
+    print htmlcss.footer
 else:
-    file_path = os.environ['TM_FILEPATH']
     result = commands.getoutput(
         '%s --format=text %s' % (csslint_path, file_path))
 
@@ -44,32 +48,7 @@ else:
         messages = result.split(file_name)
         first_message = '%s%s' % (messages[0], file_name)
 
-        style = '''
-            .container {
-                border-bottom: 1px solid lightgray;
-            }
-            .link {
-                background: lavender;
-                border: 1px solid lightgray;
-                border-bottom: 0;
-                padding:20px;
-            }
-            a {
-                color: navy;
-                text-decoration: none;
-            }'''
-
-        header = '''<html><head><style>%s</style></head><body>
-            <h3>%s</h3><div class="container">''' % (style, first_message)
-
-        link = '''<div class="link">
-            <a href="txmt://open?url=file://%s&line=%s">%s</a></div>'''
-
-        span = '<div class="link"><span>%s</span></div>'
-
-        footer = '</div></body></html>'
-
-        print header
+        print htmlcss.header % (htmlcss.style, first_message)
 
         for msg in messages:
             line_start = msg.find('line ')
@@ -77,10 +56,11 @@ else:
                 msg = msg[line_start:]
                 error_line = re.search('\d+', msg)
                 if error_line:
-                    print link % (file_path, error_line.group(0), msg)
+                    print htmlcss.linkmsg % (
+                        file_path, error_line.group(0), msg)
             else:
                 warning_start = msg.find('warning')
                 if warning_start != -1:
-                    print span % (msg[warning_start:])
+                    print htmlcss.othermsg % (msg[warning_start:])
 
-        print footer
+        print htmlcss.footer

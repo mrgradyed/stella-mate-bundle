@@ -25,18 +25,25 @@
 import os
 import re
 import commands
+import htmlcss
 
 (jshint_status, jshint_path) = commands.getstatusoutput('which jshint')
+file_path = os.environ['TM_FILEPATH']
 
 if jshint_status != 0:
-    print 'CSSLint NOT found.'
-
+    print htmlcss.header % (htmlcss.style, 'Error: jshint NOT FOUND.')
+    print htmlcss.footer
+elif os.stat(file_path).st_size == 0:
+    print htmlcss.header % (htmlcss.style, 'Error: FILE IS EMPTY.')
+    print htmlcss.footer
 else:
-    file_path = os.environ['TM_FILEPATH']
     result = commands.getoutput(
         '%s %s' % (jshint_path, file_path))
-
-    if result:
+    if not result:
+        print htmlcss.header % (
+            htmlcss.style, 'jshint: No errors in %s') % file_path
+        print htmlcss.footer
+    else:
         result = result.replace('&', '&amp;').replace('"', '&quot;').replace(
             "'", '&apos;').replace('>', '&gt;').replace('<', '&lt;')
 
@@ -46,30 +53,7 @@ else:
         first_message = 'jshint: There are %s problems in %s' % (
             number_of_errors, file_path)
 
-        style = '''
-            .container {
-                border-bottom: 1px solid lightgray;
-            }
-            .link {
-                background: lavender;
-                border: 1px solid lightgray;
-                border-bottom: 0;
-                padding:20px;
-            }
-            a {
-                color: navy;
-                text-decoration: none;
-            }'''
-
-        header = '''<html><head><style>%s</style></head><body>
-            <h3>%s</h3><div class="container">''' % (style, first_message)
-
-        link = '''<div class="link">
-            <a href="txmt://open?url=file://%s&line=%s">%s</a></div>'''
-
-        footer = '</div></body></html>'
-
-        print header
+        print htmlcss.header % (htmlcss.style, first_message)
 
         for msg in messages:
             line_start = msg.find('line ')
@@ -77,6 +61,7 @@ else:
                 msg = msg[line_start:]
                 error_line = re.search('\d+', msg)
                 if error_line:
-                    print link % (file_path, error_line.group(0), msg)
+                    print htmlcss.linkmsg % (
+                        file_path, error_line.group(0), msg)
 
-        print footer
+        print htmlcss.footer
