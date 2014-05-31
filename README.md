@@ -5,7 +5,7 @@ Handy actions for TextMate 2
 
 This bundle contains some actions I wrote to ease my work in [TextMate 2](https://github.com/textmate/textmate) editor.
 
-## Actions
+### Actions
 * #### CSSLintOnSave
 When editing a CSS file, pressing CMD+S causes the document to be analysed by [CSSLint](http://csslint.net/) and saved.
 CSSLint output is converted to HTML and printed in a window under the document, clicking on one of the listed problems causes the document to scroll to the related line.
@@ -14,16 +14,20 @@ CSSLint output is converted to HTML and printed in a window under the document, 
 When editing a Javascript file, pressing CMD+S causes the document to be analysed by [JSHint](http://jshint.com/) and saved.
 JSHint output is converted to HTML and printed in a window under the document, clicking on one of the listed problems causes the document to scroll to the related line.
 
-## Requirements
+### Requirements
 * CSSLintOnSave requires [npm version of CSSLint](https://github.com/CSSLint/csslint/wiki/Command-line-interface) to be installed.
 * JSHintOnSave requires [npm version of JSHint](http://jshint.com/install/) to be installed.
 * Actions are Python scripts, so Python 2.7 (or 2.6, or 2.5) needs to be available (Python comes pre-installed on Mac OS X).
 * **The path**, where csslint and jshint scripts are, needs to be added to the PATH variable in the TextMate 2 preferences under the '*Variables*' tab (e.g. '*/usr/local/bin*').
 
-## Installation
+### Installation
 **If TextMate 2 is installed**, just double-click "StellaMateBundle.tmbundle".
 
-## License
+### Screenshots
+![csslint in action screenshot](https://raw.githubusercontent.com/mrgradyed/stella-mate-bundle/master/csslint_check.png)
+![jshint in action screenshot](https://raw.githubusercontent.com/mrgradyed/stella-mate-bundle/master/jshint_check.png)
+
+### License
 The MIT License (MIT)
 
 Copyright (c) 2014 Emiliano D'Alterio
