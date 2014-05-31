@@ -23,46 +23,35 @@
 # SOFTWARE.
 
 import os
-import re
-import commands
-import htmlcss
+import commands as COM
+import xml.etree.ElementTree as ET
+import htmlout as HO
 
-(jshint_status, jshint_path) = commands.getstatusoutput('which jshint')
+(jshint_status, jshint_path) = COM.getstatusoutput('which jshint')
 file_path = os.environ['TM_FILEPATH']
 
 if jshint_status != 0:
-    print htmlcss.header % (htmlcss.style, 'Error: jshint NOT FOUND.')
-    print htmlcss.footer
+    HO.printHeader('Error: jshint NOT FOUND.')
 elif os.stat(file_path).st_size == 0:
-    print htmlcss.header % (htmlcss.style, 'Error: FILE IS EMPTY.')
-    print htmlcss.footer
+    HO.printHeader('Error: FILE IS EMPTY.')
 else:
-    result = commands.getoutput(
-        '%s %s' % (jshint_path, file_path))
-    if not result:
-        print htmlcss.header % (
-            htmlcss.style, 'jshint: No errors in %s') % file_path
-        print htmlcss.footer
+    xmlOutput = COM.getoutput(
+        '%s --reporter=jslint %s' % (jshint_path, file_path))
+    root = ET.fromstring(xmlOutput)
+    file = root.find('file')
+
+    if file is None:
+        HO.printHeader('jshint: No errors in ', file_path)
     else:
-        result = result.replace('&', '&amp;').replace('"', '&quot;').replace(
-            "'", '&apos;').replace('>', '&gt;').replace('<', '&lt;')
+        root = ET.fromstring(xmlOutput)
+        file = root.find('file')
+        issues = file.findall('issue')
 
-        messages = result.split(file_path)
+        HO.printHeader('jshint: There are problems in ', file_path)
 
-        if messages[0].find('ERROR') != -1:
-            first_message = 'jshint%s' % (messages[0][messages[0].find(':'):])
-        else:
-            first_message = 'jshint: There are problems in %s' % (file_path)
+        for i in issues:
+            HO.printErrorMsg(file_path, i.get('line'),
+                             i.get('char'), i.get('reason'),
+                             i.get('evidence'), i.get('severity'))
 
-        print htmlcss.header % (htmlcss.style, first_message)
-
-        for msg in messages:
-            line_start = msg.find('line ')
-            if line_start != -1:
-                msg = msg[line_start:]
-                error_line = re.search('\d+', msg)
-                if error_line:
-                    print htmlcss.linkmsg % (
-                        file_path, error_line.group(0), msg)
-
-        print htmlcss.footer
+HO.printFooter()

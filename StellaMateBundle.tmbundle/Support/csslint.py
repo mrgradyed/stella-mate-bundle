@@ -23,44 +23,35 @@
 # SOFTWARE.
 
 import os
-import re
-import commands
-import htmlcss
+import commands as COM
+import xml.etree.ElementTree as ET
+import htmlout as HO
 
-(csslint_status, csslint_path) = commands.getstatusoutput('which csslint')
+(csslint_status, csslint_path) = COM.getstatusoutput('which csslint')
 file_path = os.environ['TM_FILEPATH']
 
 if csslint_status != 0:
-    print htmlcss.header % (htmlcss.style, 'Error: csslint NOT FOUND.')
-    print htmlcss.footer
+    HO.printHeader('Error: csslint NOT FOUND.')
 elif os.stat(file_path).st_size == 0:
-    print htmlcss.header % (htmlcss.style, 'Error: FILE IS EMPTY.')
-    print htmlcss.footer
+    HO.printHeader('Error: FILE IS EMPTY.')
 else:
-    result = commands.getoutput(
-        '%s --format=text %s' % (csslint_path, file_path))
+    xmlOutput = COM.getoutput(
+        '%s --format=csslint-xml %s' % (csslint_path, file_path))
+    root = ET.fromstring(xmlOutput)
+    file = root.find('file')
 
-    if result:
-        result = result.replace('&', '&amp;').replace('"', '&quot;').replace(
-            "'", '&apos;').replace('>', '&gt;').replace('<', '&lt;')
+    if file is None:
+        HO.printHeader('csslint: No errors in ', file_path)
+    else:
+        root = ET.fromstring(xmlOutput)
+        file = root.find('file')
+        issues = file.findall('issue')
 
-        file_name = os.environ['TM_FILENAME']
-        messages = result.split(file_name)
-        first_message = '%s%s' % (messages[0], file_name)
+        HO.printHeader('csslint: There are problems in ', file_path)
 
-        print htmlcss.header % (htmlcss.style, first_message)
+        for i in issues:
+            HO.printErrorMsg(file_path, i.get('line'),
+                             i.get('char'), i.get('reason'),
+                             i.get('evidence'), i.get('severity'))
 
-        for msg in messages:
-            line_start = msg.find('line ')
-            if line_start != -1:
-                msg = msg[line_start:]
-                error_line = re.search('\d+', msg)
-                if error_line:
-                    print htmlcss.linkmsg % (
-                        file_path, error_line.group(0), msg)
-            else:
-                warning_start = msg.find('warning')
-                if warning_start != -1:
-                    print htmlcss.othermsg % (msg[warning_start:])
-
-        print htmlcss.footer
+HO.printFooter()
