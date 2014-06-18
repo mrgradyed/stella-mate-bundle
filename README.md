@@ -8,11 +8,11 @@ This bundle contains some actions I wrote to ease my work in [TextMate 2](https:
 ### Actions
 * #### CSSLintOnSave
 When editing a CSS file, pressing CMD+S causes the document to be analysed by [CSSLint](http://csslint.net/) and saved.
-CSSLint output is converted to HTML and printed in a window under the document, clicking on one of the listed problems causes the document to scroll to the related line.
+CSSLint output is converted to HTML and presented nicely in a new window. Clicking on one of the listed problems causes the document to scroll to the related line.
 
 * #### JSHintOnSave
 When editing a Javascript file, pressing CMD+S causes the document to be analysed by [JSHint](http://jshint.com/) and saved.
-JSHint output is converted to HTML and printed in a window under the document, clicking on one of the listed problems causes the document to scroll to the related line.
+JSHint output is converted to HTML and presented nicely in a new window. Clicking on one of the listed problems causes the document to scroll to the related line.
 
 ### Requirements
 * CSSLintOnSave requires [npm version of CSSLint](https://github.com/CSSLint/csslint/wiki/Command-line-interface) to be installed.
